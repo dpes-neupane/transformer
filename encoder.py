@@ -16,7 +16,7 @@ class Encoder(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
-        selfatt = self.mulatt(x, att=False)
+        selfatt = self.mulatt(x, ret_att=False)
         x = x + self.dropout(selfatt)
         x = self.ln1(x)
         linout = self.linear_layer(x)
