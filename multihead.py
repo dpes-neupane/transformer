@@ -33,10 +33,7 @@ class Multihead(nn.Module):
             qkv = qkv.reshape(batch, 3, seq_length, self.heads, self.emb_dim//self.heads)
             qkv = qkv.permute(0, 1, 3, 2, -1)
             q, k, v = qkv.chunk(3, dim=1)
-            if masked:
-                m = torch.ones(seq_length, seq_length)
-                torch.tril(m, diagonal=0, out=m)
-                mask += m
+            
             softmax, values = self.maskedSelfAttention(q, k, v, mask)
         #may need to change this too
         values = values.permute(0, 3, 2, 1, -1) #(batch, seq_length, 1, heads, dim_k)
