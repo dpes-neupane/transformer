@@ -20,23 +20,24 @@ class Multihead(nn.Module):
         nn.init.xavier_uniform_(self.linear.weight)
         self.linear.bias.data.fill_(0)
         
-    def forward(self, x, mask=None, ret_att=False):
+    def forward(self, x, mask=None, masked=False, ret_att=False):
         batch, seq_length, _ = x.size()
         qkv = self.qkv(x)
         if not self.decoder:
             qkv = qkv.reshape(batch, seq_length, 3, self.heads, self.emb_dim//self.heads) #(batch, seq_length, qkv, heads, dim_k)
             qkv = qkv.permute(0, 3, 2, 1, -1) #(batch, heads, qkv, seq_length, dim_k)
             q, k, v = torch.chunk(qkv, dim=2, chunks=3)
-            softmax, values =  self.maskedSelfAttention(q, k, v, mask==0)
+            softmax, values =  self.maskedSelfAttention(q, k, v, mask) 
         else:
             seq_length /= 3
             qkv = qkv.reshape(batch, 3, seq_length, self.heads, self.emb_dim//self.heads)
             qkv = qkv.permute(0, 1, 3, 2, -1)
             q, k, v = qkv.chunk(3, dim=1)
-
-            mask = torch.ones(seq_length, seq_length)
-            torch.triu(mask, diagonal=1, out=mask)
-            softmax, values = self.maskedSelfAttention(q, k, v, mask==1)
+            if masked:
+                m = torch.ones(seq_length, seq_length)
+                torch.tril(m, diagonal=0, out=m)
+                mask += m
+            softmax, values = self.maskedSelfAttention(q, k, v, mask)
         #may need to change this too
         values = values.permute(0, 3, 2, 1, -1) #(batch, seq_length, 1, heads, dim_k)
         values = values.reshape(batch, seq_length, self.emb_dim)
@@ -57,7 +58,7 @@ class Multihead(nn.Module):
         scaled_dots = dot / torch.sqrt(torch.tensor(q.size()[-1]))
         if mask is not None:
             mask = torch.unsqueeze(mask, 0)
-            scaled_dots = scaled_dots.masked_fill(mask, -9e15)
+            scaled_dots = scaled_dots.masked_fill(mask==0, -9e15)
         softmax = torch.nn.functional.softmax(scaled_dots, dim=-1)
         values = torch.matmul(softmax, v)
         return softmax, values
