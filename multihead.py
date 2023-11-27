@@ -1,6 +1,6 @@
 import torch 
 from torch import nn, Tensor
-from typing import Union
+from typing import Union, Tuple
 class Multihead(nn.Module):
     '''
     Implementation of Multihead attention according the the paper "Attention is all you need".
@@ -12,9 +12,9 @@ class Multihead(nn.Module):
     
     Shape:
         - Input: (seq_length, input_dim) 
-        - Output: (seq_length, emb_dim)
+        - Output: (seq_length, emb_dim) | tuple
     '''
-    def __init__(self, input_dim: Tensor, emb_dim: Tensor, heads: int) -> None:
+    def __init__(self, input_dim: int, emb_dim: int, heads: int) -> None:
         super().__init__()
         assert emb_dim % heads == 0, "embedding dimension should be divisible by no. of heads"
         self.qkv = nn.Linear(input_dim, 3*emb_dim)
@@ -43,14 +43,14 @@ class Multihead(nn.Module):
             return softmax, vals
         return vals
     
-    def selfAttention(self, q: Tensor, k: Tensor, v: Tensor) -> tuple(Tensor, Tensor):
+    def selfAttention(self, q: Tensor, k: Tensor, v: Tensor) -> Tuple[Tensor, Tensor]:
         dot = torch.matmul(q, k.transpose(-1, -2))
         scaled_dots = dot / torch.sqrt(torch.tensor(q.size()[-1]))
         softmax = torch.nn.functional.softmax(scaled_dots, dim=-1)
         values = torch.matmul(softmax, v)
         return softmax, values
 
-    def maskedSelfAttention(self, q: Tensor, k: Tensor, v: Tensor, mask=None) -> tuple(Tensor, Tensor):
+    def maskedSelfAttention(self, q: Tensor, k: Tensor, v: Tensor, mask=None) -> Tuple[Tensor, Tensor]:
         dot = torch.matmul(q, k.transpose(-1, -2))
         scaled_dots = dot / torch.sqrt(torch.tensor(q.size()[-1]))
         if mask is not None:
@@ -63,9 +63,22 @@ class Multihead(nn.Module):
     
     
 class DecoderMultihead(Multihead):
+    ''' 
+    Class for the applying the multihead attention for the decoder of the transformer
+
+    The input for this multihead takes the output of the encoder. 
+    
+    Args:
+        input_dim: size of the input dimension 
+        emb_dim: dimension of the embeddings inside the transformer
+        heads: no of heads for multihead selfAttention calculation
+    
+    Shape:
+        - Input: (seq_length, input_dim) and the output of the encoder (seq_length, emb_dim)
+        - Output: (seq_length, emb_dim)
+    '''
     def __init__(self, input_dim: Tensor, emb_dim: Tensor, heads: int) -> None:
         super().__init__(input_dim, emb_dim, heads)
-        self.qkv = nn.Linear(input_dim, emb_dim)
         self.kv = nn.Linear(input_dim, 2*emb_dim)
         self.q = nn.Linear(input_dim, emb_dim)
         

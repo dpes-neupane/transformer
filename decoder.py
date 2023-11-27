@@ -1,8 +1,22 @@
-import torch
-from torch import nn
+from torch import nn, Tensor
+from typing import Any, Union
 from multihead import DecoderMultihead, Multihead
 class Decoder(nn.Module):
-    def __init__(self, input_dim, emb_dim, heads, linear_dim, dropout=0.0):
+    ''' 
+    Class for the decoder layer of the Transformer.
+    
+    Args:
+        input_dim: size of the input dimension 
+        emb_dim: dimension of the embeddings inside the transformer
+        heads: no of heads for multihead selfAttention calculation
+        linear_dim: size of the FCNN above each multihead sub-layer
+        dropout: dropout probability.
+
+    Shape:
+        - Input: (seq_length, input_dim) and the output of the encoder (seq_length, emb_dim).
+        - Output: (seq_length, emb_dim).
+    '''
+    def __init__(self, input_dim: int, emb_dim: int, heads: int, linear_dim: int, dropout: float=0.0) -> None:
         super().__init__()
         self.multihead= DecoderMultihead(input_dim, emb_dim, heads)
         self.maskedMultihead= Multihead(input_dim, emb_dim, heads)
@@ -15,7 +29,7 @@ class Decoder(nn.Module):
         self.ln3 = nn.LayerNorm(input_dim)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x, y, mask1=None, mask2=None): #mask needs to be added!!!
+    def forward(self, x: Tensor, y: Tensor, mask1:Union[Tensor, None]=None, mask2:Union[Tensor, None]=None) -> Tensor: #mask needs to be added!!!
         maskedselfatt = self.maskedMultihead(y, mask=mask1)
         y = y + self.dropout(maskedselfatt)
         y = self.ln1(y)
@@ -28,12 +42,23 @@ class Decoder(nn.Module):
         return x
 
 class Decoders(nn.Module):
-    def __init__(self, layers, **decoder_args):
+    '''
+    Class for n Decoders 
+    
+    Args: 
+        layers: number of encoders
+        decoder_args: all the encoder arguments
+    
+    Shape:
+        - Input: (seq_length, input_dim) and the output of the encoder (seq_length, emb_dim).
+        - Output: (seq_length, emb_dim). 
+    '''
+    def __init__(self, layers: int, **decoder_args: Any) -> None:
         super().__init__()
         self.layers = layers
         self.decoders = nn.ModuleList([Decoder(**decoder_args) for _ in range(layers)])
 
-    def forward(self, x, y, mask1=None, mask2=None):
+    def forward(self, x: Tensor, y: Tensor, mask1:Union[Tensor, None]=None, mask2:Union[Tensor, None]=None) -> Tensor:
         for l in self.decoders:
             x = l(x, y, mask1, mask2)
         return x
