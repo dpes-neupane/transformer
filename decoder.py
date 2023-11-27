@@ -19,9 +19,7 @@ class Decoder(nn.Module):
         maskedselfatt = self.maskedMultihead(y, mask=mask1)
         y = y + self.dropout(maskedselfatt)
         y = self.ln1(y)
-        y = y.detach()
-        z = torch.hstack((y, x, x))
-        selfatt = self.multihead(z, mask2) #mask!1
+        selfatt = self.multihead(x, y, mask2) #mask!1
         y = y + self.dropout(selfatt)
         y = self.ln2(y)
         linear = self.linear_layer(y)
