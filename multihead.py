@@ -29,7 +29,7 @@ class Multihead(nn.Module):
         nn.init.xavier_uniform_(self.linear.weight)
         self.linear.bias.data.fill_(0)
         
-    def forward(self, x: Tensor, mask=None, ret_att=False-> Union[tuple, Tensor]):
+    def forward(self, x: Tensor, mask=None, ret_att=False) -> Union[tuple, Tensor]:
         batch, seq_length, _ = x.size()
         qkv = self.qkv(x)
         qkv = qkv.reshape(batch, seq_length, 3, self.heads, self.emb_dim//self.heads) #(batch, seq_length, qkv, heads, dim_k)
