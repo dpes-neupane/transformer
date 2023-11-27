@@ -15,8 +15,8 @@ class Encoder(nn.Module):
         self.ln2 = nn.LayerNorm(input_dim)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x):
-        selfatt = self.mulatt(x, ret_att=False)
+    def forward(self, x, mask=None):
+        selfatt = self.mulatt(x, mask=mask, ret_att=False)
         x = x + self.dropout(selfatt)
         x = self.ln1(x)
         linout = self.linear_layer(x)
@@ -24,3 +24,13 @@ class Encoder(nn.Module):
         x = self.ln2(x)
         return x
 
+class Encoders(nn.Module):
+    def __init__(self, layers, **encoder_args):
+        super().__init__()
+        self.layers = layers
+        self.encoders = nn.ModuleList([Encoder(**encoder_args) for _ in range(layers)])
+
+    def forward(self, x):
+        for l in self.encoders:
+            x = l(x)
+        return x
