@@ -77,7 +77,7 @@ class DecoderMultihead(Multihead):
         - Input: (seq_length, input_dim) and the output of the encoder (seq_length, emb_dim)
         - Output: (seq_length, emb_dim)
     '''
-    def __init__(self, input_dim: Tensor, emb_dim: Tensor, heads: int) -> None:
+    def __init__(self, input_dim: int, emb_dim: int, heads: int) -> None:
         super().__init__(input_dim, emb_dim, heads)
         self.kv = nn.Linear(input_dim, 2*emb_dim)
         self.q = nn.Linear(input_dim, emb_dim)
