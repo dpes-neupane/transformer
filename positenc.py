@@ -34,6 +34,7 @@ class PositionalEncodingTorch(nn.Module):
     
     '''
     def __init__(self, max_length: int, d_model: int, scalar: int = 10000) -> None:
+        super().__init__()
         self.pos = torch.arange(0, max_length)[:, None]
         self.d_model = d_model
         self.scalar = scalar
