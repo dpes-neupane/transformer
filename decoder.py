@@ -60,5 +60,5 @@ class Decoders(nn.Module):
 
     def forward(self, x: Tensor, y: Tensor, mask1:Union[Tensor, None]=None, mask2:Union[Tensor, None]=None) -> Tensor:
         for l in self.decoders:
-            x = l(x, y, mask1, mask2)
-        return x
+            y = l(x, y, mask1, mask2)
+        return y
