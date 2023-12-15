@@ -35,13 +35,18 @@ class PositionalEncodingTorch(nn.Module):
     '''
     def __init__(self, max_length: int, d_model: int, scalar: int = 10000) -> None:
         super().__init__()
-        self.pos = torch.arange(0, max_length)[:, None]
+        # self.pos = torch.arange(0, max_length)[:, None]
         self.d_model = d_model
         self.scalar = scalar
-        self.pe = torch.zeros((max_length, self.d_model))
+        # self.pe = torch.zeros((max_length, self.d_model))
         
-    def encode(self, emb: Tensor) -> Tensor:
+    def forward(self, emb: Tensor) -> Tensor:
+        self.pos = torch.arange(0, emb.shape[1])[:, None]
+    
+        self.pe = torch.zeros((emb.shape[1], self.d_model))
         divs = np.exp(torch.arange(0, self.d_model, 2) * (-np.log(10000.0) / self.d_model))
         self.pe[:, 0::2] = torch.sin(self.pos * divs)
         self.pe[:, 1::2] = torch.cos(self.pos * divs)
+        # print("PEis\n")
+        # print(self.pe.shape)
         return self.pe + emb
