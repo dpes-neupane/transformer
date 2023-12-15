@@ -28,6 +28,6 @@ class Transformer(nn.Module):
         self.decoder = Decoders(layers, input_dim=input_dim, emb_dim=emb_dim, heads=heads, linear_dim=linear_dim, dropout=dropout)
         
     def forward(self, x: Tensor, y: Tensor, mask1: Union[Tensor, None]=None, mask2: Union[Tensor, None]=None) -> Tensor:
-        x = self.encoder(x, mask1)
-        z = self.decoder(x, y, mask1, mask2)
+        x = self.encoder.forward(x, mask1)
+        z = self.decoder.forward(x, y, mask2=mask2)
         return z
