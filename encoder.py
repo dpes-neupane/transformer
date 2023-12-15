@@ -55,7 +55,7 @@ class Encoders(nn.Module):
         self.layers = layers
         self.encoders = nn.ModuleList([Encoder(**encoder_args) for _ in range(layers)])
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x: Tensor, mask:Union[None, Tensor]=None) -> Tensor:
         for l in self.encoders:
-            x = l(x)
+            x = l(x, mask)
         return x
