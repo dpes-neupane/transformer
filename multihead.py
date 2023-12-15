@@ -57,6 +57,7 @@ class Multihead(nn.Module):
             mask = torch.unsqueeze(mask, 0)
             scaled_dots = scaled_dots.masked_fill(mask==0, -9e15)
         softmax = torch.nn.functional.softmax(scaled_dots, dim=-1)
+        print(scaled_dots.shape, v.shape)
         values = torch.matmul(softmax, v)
         return softmax, values
     
@@ -83,16 +84,17 @@ class DecoderMultihead(Multihead):
         self.q = nn.Linear(input_dim, emb_dim)
         
     def forward(self, kv: Tensor, x: Tensor, mask=None, ret_att=False) -> Union[tuple, Tensor]:
-        batch, seq_length, _ = x.size()
+        batch_x, seq_length_x, _ = x.size()
+        batch_kv, seq_length_kv, _ = kv.size()
         kv = self.kv(kv)
-        kv = kv.reshape(batch, seq_length, 2, self.heads, self.emb_dim//self.heads)
+        kv = kv.reshape(batch_kv, seq_length_kv, 2, self.heads, self.emb_dim//self.heads)
         kv = kv.permute(0, 3, 2, 1, -1) # batch, heads, kv, seq_length, dk 
         k, v = torch.chunk(kv, chunks=2, dim=2)
         q = self.q(x)
-        q = q.reshape(batch, self.heads, 1, seq_length, self.emb_dim//self.heads)
+        q = q.reshape(batch_x, self.heads, 1, seq_length_x, self.emb_dim//self.heads)
         softmax, values =  super().maskedSelfAttention(q, k, v, mask) 
         values = values.permute(0, 3, 2, 1, -1) #(batch, seq_length, 1, heads, dim_k)
-        values = values.reshape(batch, seq_length, self.emb_dim)
+        values = values.reshape(batch_kv, seq_length_kv, self.emb_dim)
         vals = self.linear(values)
         if ret_att:
             return softmax, vals
