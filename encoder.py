@@ -29,8 +29,8 @@ class Encoder(nn.Module):
         self.ln2 = nn.LayerNorm(input_dim)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x:Tensor, mask:Union[Tensor, None]=None)  -> Tensor:
-        selfatt = self.mulatt(x, mask=mask, ret_att=False)
+    def forward(self, x:Tensor, mask:Union[Tensor, None]=None, return_att: bool=False)  -> Tensor:
+        selfatt = self.mulatt(x, mask=mask, ret_att=return_att)
         x = x + self.dropout(selfatt)
         x = self.ln1(x)
         linout = self.linear_layer(x)

@@ -4,7 +4,6 @@ from encoder import Encoders
 from decoder import Decoders
 
 
-
 class Transformer(nn.Module):
     '''
     Class for Transformer. 
@@ -27,7 +26,7 @@ class Transformer(nn.Module):
         self.encoder = Encoders(layers, input_dim=input_dim, emb_dim=emb_dim, heads=heads, linear_dim=linear_dim, dropout=dropout)
         self.decoder = Decoders(layers, input_dim=input_dim, emb_dim=emb_dim, heads=heads, linear_dim=linear_dim, dropout=dropout)
         
-    def forward(self, x: Tensor, y: Tensor, mask1: Union[Tensor, None]=None, mask2: Union[Tensor, None]=None) -> Tensor:
-        x = self.encoder.forward(x, mask1)
-        z = self.decoder.forward(x, y, mask2=mask2)
+    def forward(self, x: Tensor, y: Tensor, mask1: Union[Tensor, None]=None, mask2: Union[Tensor, None]=None, return_att: bool=False) -> Tensor:
+        x = self.encoder.forward(x, mask1, return_att=return_att)
+        z = self.decoder.forward(x, y, mask2=mask2, return_att=return_att)
         return z

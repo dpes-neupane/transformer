@@ -55,9 +55,9 @@ class Multihead(nn.Module):
         scaled_dots = dot / torch.sqrt(torch.tensor(q.size()[-1]))
         if mask is not None:
             mask = torch.unsqueeze(mask, 0)
+            mask = torch.unsqueeze(mask, 2)
             scaled_dots = scaled_dots.masked_fill(mask==0, -9e15)
         softmax = torch.nn.functional.softmax(scaled_dots, dim=-1)
-        print(scaled_dots.shape, v.shape)
         values = torch.matmul(softmax, v)
         return softmax, values
     

@@ -29,11 +29,11 @@ class Decoder(nn.Module):
         self.ln3 = nn.LayerNorm(input_dim)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x: Tensor, y: Tensor, mask1:Union[Tensor, None]=None, mask2:Union[Tensor, None]=None) -> Tensor: 
-        maskedselfatt = self.maskedMultihead(y, mask=mask2)
+    def forward(self, x: Tensor, y: Tensor, mask1:Union[Tensor, None]=None, mask2:Union[Tensor, None]=None, return_att: bool=False) -> Tensor: 
+        maskedselfatt = self.maskedMultihead(y, mask=mask2, return_att=return_att)
         y = y + self.dropout(maskedselfatt)
         y = self.ln1(y)
-        selfatt = self.multihead(x, y)
+        selfatt = self.multihead(x, y, mask=mask1, return_att=return_att)
         y = y + self.dropout(selfatt)
         y = self.ln2(y)
         linear = self.linear_layer(y)
