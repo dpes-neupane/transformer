@@ -54,7 +54,7 @@ class Multihead(nn.Module):
         dot = torch.matmul(q, k.transpose(-1, -2))
         scaled_dots = dot / torch.sqrt(torch.tensor(q.size()[-1]))
         if mask is not None:
-            mask = torch.unsqueeze(mask, 0)
+            mask = torch.unsqueeze(mask, 1)
             mask = torch.unsqueeze(mask, 2)
             scaled_dots = scaled_dots.masked_fill(mask==0, -9e15)
         softmax = torch.nn.functional.softmax(scaled_dots, dim=-1)
@@ -83,7 +83,7 @@ class DecoderMultihead(Multihead):
         self.kv = nn.Linear(input_dim, 2*emb_dim)
         self.q = nn.Linear(input_dim, emb_dim)
         
-    def forward(self, kv: Tensor, x: Tensor, mask=None, ret_att=False) -> Union[tuple, Tensor]:
+    def forward(self, kv: Tensor, x: Tensor, mask: Tensor=None, ret_att: bool=False) -> Union[tuple, Tensor]:
         batch_x, seq_length_x, _ = x.size()
         batch_kv, seq_length_kv, _ = kv.size()
         kv = self.kv(kv)
