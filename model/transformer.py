@@ -1,7 +1,7 @@
 from torch import nn, Tensor
 from typing import Union
-from encoder import Encoders
-from decoder import Decoders
+from .encoder import Encoders
+from .decoder import Decoders
 
 
 class Transformer(nn.Module):

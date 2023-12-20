@@ -1,6 +1,6 @@
 from torch import nn, Tensor
 from typing import Any, Union
-from multihead import Multihead
+from .multihead import Multihead
 
 class Encoder(nn.Module):
     '''

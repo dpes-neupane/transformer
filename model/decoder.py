@@ -1,6 +1,6 @@
 from torch import nn, Tensor
 from typing import Any, Union
-from multihead import DecoderMultihead, Multihead
+from .multihead import DecoderMultihead, Multihead
 class Decoder(nn.Module):
     ''' 
     Class for the decoder layer of the Transformer.
