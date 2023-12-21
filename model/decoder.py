@@ -37,7 +37,7 @@ class Decoder(nn.Module):
         y = y + self.dropout(selfatt)
         y = self.ln2(y)
         linear = self.linear_layer(y)
-        x = x + self.dropout(linear)
+        x = y + self.dropout(linear)
         x = self.ln3(x)
         return x
 

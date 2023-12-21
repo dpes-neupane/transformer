@@ -94,7 +94,7 @@ class DecoderMultihead(Multihead):
         q = q.reshape(batch_x, self.heads, 1, seq_length_x, self.emb_dim//self.heads)
         softmax, values =  super().maskedSelfAttention(q, k, v, mask) 
         values = values.permute(0, 3, 2, 1, -1) #(batch, seq_length, 1, heads, dim_k)
-        values = values.reshape(batch_kv, seq_length_kv, self.emb_dim)
+        values = values.reshape(batch_kv, seq_length_x, self.emb_dim)
         vals = self.linear(values)
         if ret_att:
             return softmax, vals
