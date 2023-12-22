@@ -30,13 +30,15 @@ class Encoder(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x:Tensor, mask:Union[Tensor, None]=None, return_att: bool=False)  -> Tensor:
-        selfatt = self.mulatt(x, mask=mask, ret_att=return_att)
+        softmax, selfatt = self.mulatt(x, mask=mask, ret_att=return_att)
         x = x + self.dropout(selfatt)
         x = self.ln1(x)
         linout = self.linear_layer(x)
         x = x + self.dropout(linout)
         x = self.ln2(x)
-        return x
+        if return_att:
+            return softmax, x
+        return None, x
 
 class Encoders(nn.Module):
     '''
@@ -57,5 +59,7 @@ class Encoders(nn.Module):
 
     def forward(self, x: Tensor, mask:Union[None, Tensor]=None, return_att: bool=False) -> Tensor:
         for l in self.encoders:
-            x = l(x, mask)
-        return x
+            softmax, x = l(x, mask, return_att)
+        if return_att:
+            return softmax, x
+        return None, x

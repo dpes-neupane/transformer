@@ -41,7 +41,7 @@ class Multihead(nn.Module):
         vals = self.linear(values)
         if ret_att:
             return softmax, vals
-        return vals
+        return None, vals
     
     def selfAttention(self, q: Tensor, k: Tensor, v: Tensor) -> Tuple[Tensor, Tensor]:
         dot = torch.matmul(q, k.transpose(-1, -2))
@@ -98,4 +98,4 @@ class DecoderMultihead(Multihead):
         vals = self.linear(values)
         if ret_att:
             return softmax, vals
-        return vals
+        return None, vals
