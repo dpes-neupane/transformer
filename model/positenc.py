@@ -40,7 +40,7 @@ class PositionalEncodingTorch(nn.Module):
         self.scalar = scalar
         # self.pe = torch.zeros((max_length, self.d_model))
         
-    def forward(self, emb: Tensor) -> Tensor:
+    def forward(self, emb: Tensor, device: str) -> Tensor:
         self.pos = torch.arange(0, emb.shape[1])[:, None]
     
         self.pe = torch.zeros((emb.shape[1], self.d_model), requires_grad=False)
@@ -49,4 +49,4 @@ class PositionalEncodingTorch(nn.Module):
         self.pe[:, 1::2] = torch.cos(self.pos * divs)
         # print("PEis\n")
         # print(self.pe.shape)
-        return self.pe + emb
+        return self.pe.to(device) + emb
