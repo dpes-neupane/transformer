@@ -1,3 +1,7 @@
-name, epochs, batch_size, dropout, EMB_DIM, HEADS, LINEAR_DIM, LAYERS
+name, epochs, batch_size, dropout, EMB_DIM, HEADS, LINEAR_DIM, LAYERS, epsilon
 1, 100, 64, 0.1, 64, 4, 256, 2   
-2, 100, s, s, 128, 8, 512, 2
+2, 100, same, same, 128, 8, 512, 2
+3, 200, same, same, same, same, same, same
+4, 8, 16, 0.1, 128, 64, 512, 2
+5, 100, 48, .3, 128, 32, 512, 2, 10**-7
+6, 1000, 128, .3, same, same, same, same, same
