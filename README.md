@@ -35,12 +35,13 @@ After increasing dropout to 0.3 and heads decreased to 32, the validation loss d
 ### 6
 ![](plots/6.png)
 
-Training for 100 epochs. Validation loss did not decrease. 
+Training for 1000 epochs. Validation loss did not decrease. 
 
 Summary of the hyperparameters:
 
 ![](plots/models.png)
 
+Here, 0 at the epsilon column is 10**-9 and "no" at the Pos Dropout means "NA" also "same" means it has the same value to the above cell.
 
 Not a very good example of attention:
 
